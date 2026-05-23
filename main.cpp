@@ -35,6 +35,35 @@ bool matches(char open, char close) {
            (open == '{' && close == '}');
 }
 
+// Asks the user for variable values via console
+void getValues(vector<int>& values, const vector<string>& variables) {
+    values.resize(variables.size()); 
+    for (size_t i = 0; i < variables.size(); i++) {
+        // Strict constraint: Prompts must go to stderr, not stdout!
+        cerr << "Enter value for " << variables[i] << ": ";
+        
+        // Input validation fallback
+        while (!(cin >> values[i])) { 
+            cerr << "Invalid input. Please enter a number for " << variables[i] << " : ";
+            cin.clear(); 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+        }
+        // cout << '\n';
+    }
+}
+
+// Scans our vectors to fetch a variable's assigned integer value
+int findValue(const vector<string>& variables, const vector<int>& values, const string& x) {
+    for (size_t i = 0; i < variables.size(); i++) {
+        if (variables[i] == x) {
+            return values[i];
+        }
+    }
+    cerr << "Logical Error: Reference to unassigned variable: " << x << "\n";
+    exit(3); // Logical error exit code
+}
+
+
 // Converts standard expression to Reverse Polish Notation (Tokens)
 vector<string> convertInfixToPostfix(const string& infix, vector<string>& variables) {
     stack<char> operatorStack; 
@@ -137,7 +166,23 @@ int main() {
     if (!getline(cin, infixExpression)) {
         return 0;
     }
+
     vector<string> variables;
+    vector<int> values;
+
+    // Run conversion pass
     vector<string> postfixTokens = convertInfixToPostfix(infixExpression, variables);
-    return 0;
+
+    // Prompt user for input values via stderr stream 
+    getValues(values, variables);
+
+
+    // Printing output tokens safely without adding a messy trailing space
+    for (int i = 0; i < postfixTokens.size(); i++) {
+        cout << postfixTokens[i];
+        if (i + 1 < postfixTokens.size()) {
+            cout << " ";
+        }
+    }
+    return 0; // Success! 
 }
