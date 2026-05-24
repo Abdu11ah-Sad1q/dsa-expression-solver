@@ -36,9 +36,9 @@ bool matches(char open, char close) {
 }
 
 // Asks the user for variable values via console
-void getValues(vector<int>& values, const vector<string>& variables) {
+void getValues(vector<long long>& values, const vector<string>& variables) {
     values.resize(variables.size()); 
-    for (size_t i = 0; i < variables.size(); i++) {
+    for (int i = 0; i < variables.size(); i++) {
         // Strict constraint: Prompts must go to stderr, not stdout!
         cerr << "Enter value for " << variables[i] << ": ";
         
@@ -53,7 +53,7 @@ void getValues(vector<int>& values, const vector<string>& variables) {
 }
 
 // Scans our vectors to fetch a variable's assigned integer value
-int findValue(const vector<string>& variables, const vector<int>& values, const string& x) {
+long long findValue(const vector<string>& variables, const vector<long long>& values, const string& x) {
     for (size_t i = 0; i < variables.size(); i++) {
         if (variables[i] == x) {
             return values[i];
@@ -160,8 +160,8 @@ vector<string> convertInfixToPostfix(const string& infix, vector<string>& variab
 }
 
 // Evaluates the postfix token structure mathematically
-int evaluatePostfixExpression(const vector<string>& postfixTokens, const vector<string>& variables, const vector<int>& values) {
-    stack<int> evalStack; 
+long long evaluatePostfixExpression(const vector<string>& postfixTokens, const vector<string>& variables, const vector<long long>& values) {
+    stack<long long> evalStack; 
 
     for (int i = 0; i < postfixTokens.size(); i++) {
         // If token is a single-character operator
@@ -172,17 +172,17 @@ int evaluatePostfixExpression(const vector<string>& postfixTokens, const vector<
                 cerr << "Syntax Error: Insufficient operands for operation.\n";
                 exit(1);
             }
-            int val2 = evalStack.top();
+            long long val2 = evalStack.top();
             evalStack.pop();
 
             if (evalStack.empty()) {
                 cerr << "Syntax Error: Insufficient operands for operation.\n";
                 exit(1);
             }
-            int val1 = evalStack.top();
+            long long val1 = evalStack.top();
             evalStack.pop();
 
-            int result = 0;
+            long long result = 0;
             if (currentOp == '+') result = val1 + val2;
             else if (currentOp == '-') result = val1 - val2;
             else if (currentOp == '*') result = val1 * val2;
@@ -201,7 +201,7 @@ int evaluatePostfixExpression(const vector<string>& postfixTokens, const vector<
         }
         // Must be a variable string
         else {
-            int val = findValue(variables, values, postfixTokens[i]);
+            long long val = findValue(variables, values, postfixTokens[i]);
             evalStack.push(val);
         }
     }
@@ -211,7 +211,7 @@ int evaluatePostfixExpression(const vector<string>& postfixTokens, const vector<
         exit(2);
     }
     
-    int finalOutput = evalStack.top();
+    long long finalOutput = evalStack.top();
     evalStack.pop();
 
     if (!evalStack.empty()) {
@@ -230,7 +230,7 @@ int main() {
     }
 
     vector<string> variables;
-    vector<int> values;
+    vector<long long> values;
 
     // Run conversion pass
     vector<string> postfixTokens = convertInfixToPostfix(infixExpression, variables);
@@ -239,7 +239,7 @@ int main() {
     getValues(values, variables);
 
     // Compute stack results
-    int finalEvaluation = evaluatePostfixExpression(postfixTokens, variables, values);
+    long long finalEvaluation = evaluatePostfixExpression(postfixTokens, variables, values);
 
     // Printing output tokens safely without adding a messy trailing space
     for (int i = 0; i < postfixTokens.size(); i++) {
