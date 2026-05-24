@@ -54,7 +54,7 @@ void getValues(vector<long long>& values, const vector<string>& variables) {
 
 // Scans our vectors to fetch a variable's assigned integer value
 long long findValue(const vector<string>& variables, const vector<long long>& values, const string& x) {
-    for (size_t i = 0; i < variables.size(); i++) {
+    for (int i = 0; i < variables.size(); i++) {
         if (variables[i] == x) {
             return values[i];
         }
