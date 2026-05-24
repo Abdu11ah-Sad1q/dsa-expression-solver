@@ -63,7 +63,6 @@ int findValue(const vector<string>& variables, const vector<int>& values, const 
     exit(3); // Logical error exit code
 }
 
-
 // Converts standard expression to Reverse Polish Notation (Tokens)
 vector<string> convertInfixToPostfix(const string& infix, vector<string>& variables) {
     stack<char> operatorStack; 
@@ -160,9 +159,72 @@ vector<string> convertInfixToPostfix(const string& infix, vector<string>& variab
     return postfixTokens;
 }
 
+// Evaluates the postfix token structure mathematically
+int evaluatePostfixExpression(const vector<string>& postfixTokens, const vector<string>& variables, const vector<int>& values) {
+    stack<int> evalStack; 
+
+    for (int i = 0; i < postfixTokens.size(); i++) {
+        // If token is a single-character operator
+        if (isOperator(postfixTokens[i][0]) && postfixTokens[i].length() == 1) {
+            char currentOp = postfixTokens[i][0];
+
+            if (evalStack.empty()) {
+                cerr << "Syntax Error: Insufficient operands for operation.\n";
+                exit(1);
+            }
+            int val2 = evalStack.top();
+            evalStack.pop();
+
+            if (evalStack.empty()) {
+                cerr << "Syntax Error: Insufficient operands for operation.\n";
+                exit(1);
+            }
+            int val1 = evalStack.top();
+            evalStack.pop();
+
+            int result = 0;
+            if (currentOp == '+') result = val1 + val2;
+            else if (currentOp == '-') result = val1 - val2;
+            else if (currentOp == '*') result = val1 * val2;
+            else if (currentOp == '/') {
+                if (val2 == 0) {
+                    cerr << "Runtime Error: Division by zero encountered.\n";
+                    exit(2); // Runtime error exit code
+                }
+                result = val1 / val2;
+            }
+            evalStack.push(result);
+        }
+        // If token is a number string
+        else if (isdigit(postfixTokens[i][0])) {
+            evalStack.push(stoi(postfixTokens[i]));
+        }
+        // Must be a variable string
+        else {
+            int val = findValue(variables, values, postfixTokens[i]);
+            evalStack.push(val);
+        }
+    }
+
+    if (evalStack.empty()) {
+        cerr << "Runtime Error: Evaluation yielded empty final state.\n";
+        exit(2);
+    }
+    
+    int finalOutput = evalStack.top();
+    evalStack.pop();
+
+    if (!evalStack.empty()) {
+        cerr << "Syntax Error: Extraneous operands remaining.\n";
+        exit(1);
+    }
+
+    return finalOutput;
+}
+
 int main() {
     string infixExpression;
-    cerr << "Enter the expression: ";
+     cerr << "Enter the expression: ";
     if (!getline(cin, infixExpression)) {
         return 0;
     }
@@ -173,9 +235,11 @@ int main() {
     // Run conversion pass
     vector<string> postfixTokens = convertInfixToPostfix(infixExpression, variables);
 
-    // Prompt user for input values via stderr stream 
+    // Prompt user for input values via stderr stream
     getValues(values, variables);
 
+    // Compute stack results
+    int finalEvaluation = evaluatePostfixExpression(postfixTokens, variables, values);
 
     // Printing output tokens safely without adding a messy trailing space
     for (int i = 0; i < postfixTokens.size(); i++) {
@@ -184,5 +248,8 @@ int main() {
             cout << " ";
         }
     }
-    return 0; // Success! 
+    cout << "\n";
+    cout << finalEvaluation << "\n";
+
+    return 0; // Everything ran cleanly!
 }
